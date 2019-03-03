@@ -7,24 +7,24 @@
     http://www.springframework.org/schema/tx
     http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-    <!--&lt;!&ndash; mybatis文件配置，扫描所有mapper文件 &ndash;&gt;-->
-    <!--<bean id="mtSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">-->
-        <!--<property name="dataSource" ref="mysqlDataSource"/>-->
-        <!--<property name="mapperLocations" value="classpath:mapper/**/*.xml "/>-->
-    <!--</bean>-->
-    <!--&lt;!&ndash; configLocation为mybatis属性 mapperLocations为所有mapper &ndash;&gt;-->
+    <!-- mybatis文件配置，扫描所有mapper文件 -->
+    <bean id="mtSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="mysqlDataSource"/>
+        <property name="mapperLocations" value="classpath:mappering/**/*.xml "/>
+    </bean>
+    <!-- configLocation为mybatis属性 mapperLocations为所有mapper -->
 
-    <!--&lt;!&ndash; spring与mybatis整合配置，扫描所有Mapper &ndash;&gt;-->
-    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">-->
-        <!--<property name="basePackage" value="com.mt.dao"/>-->
-        <!--<property name="sqlSessionFactoryBeanName" value="mtSqlSessionFactory"/>-->
-    <!--</bean>-->
+    <!-- spring与mybatis整合配置，扫描所有Mapper -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.mt.dao"/>
+        <property name="sqlSessionFactoryBeanName" value="mtSqlSessionFactory"/>
+    </bean>
 
-    <!--&lt;!&ndash; 事务管理器 &ndash;&gt;-->
-    <!--<bean id="mtTxManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
-        <!--<property name="dataSource" ref="mysqlDataSource" />-->
-    <!--</bean>-->
+    <!-- 事务管理器 -->
+    <bean id="mtTxManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="mysqlDataSource" />
+    </bean>
 
-    <!--&lt;!&ndash; 事务注解驱动，标注@Transactional的类和方法将具有事务性 &ndash;&gt;-->
-    <!--<tx:annotation-driven transaction-manager="mtTxManager" proxy-target-class="true"/>-->
+    <!-- 事务注解驱动，标注@Transactional的类和方法将具有事务性 -->
+    <tx:annotation-driven transaction-manager="mtTxManager" proxy-target-class="true"/>
 </beans>

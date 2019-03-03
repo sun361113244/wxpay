@@ -1,5 +1,7 @@
 package com.mt.listener;
 
+import com.mt.po.DeviceConn;
+import com.mt.po.DeviceConnPo;
 import com.mt.service.HandlerSelectionKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,20 +15,18 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 @Component
 public class DeviceListener implements InitializingBean
 {
     private static Logger logger = LoggerFactory.getLogger(DeviceListener.class);
 
-    private static List<SocketChannel> channels = Collections.synchronizedList(new ArrayList<SocketChannel>());
+    private static Map<String , DeviceConn> deviceConnPoMap = new HashMap<>();
+
+//    private static List<SocketChannel> channels = Collections.synchronizedList(new ArrayList<SocketChannel>());
 
     private ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor(
             r -> {
@@ -62,7 +62,7 @@ public class DeviceListener implements InitializingBean
                             SelectionKey key = it.next();
                             it.remove();
                             //处理 SelectionKey
-                            handlerSelectionKey.handler(channels, key, selector);
+                            handlerSelectionKey.handler(deviceConnPoMap, key, selector);
                             Thread.sleep(100);
                         }
                     }

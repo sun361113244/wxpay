@@ -1,5 +1,7 @@
 package com.mt.service.impl;
 
+import com.mt.po.DeviceConn;
+import com.mt.po.DeviceConnPo;
 import com.mt.service.HandlerSelectionKey;
 import org.springframework.stereotype.Service;
 
@@ -10,23 +12,28 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class HandlerHandlerSelectionKeyImpl  implements HandlerSelectionKey
 {
     @Override
-    public void handler(List<SocketChannel> channels , SelectionKey key, Selector selector) throws IOException
+    public void handler(Map<String , DeviceConn> deviceConnMap , SelectionKey key, Selector selector) throws IOException
     {
         int keyState = selectionKeyState(key);
         switch (keyState) {
             case SelectionKey.OP_ACCEPT:
                 ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
-                accept(channels , serverSocketChannel, selector);
+                accept(deviceConnMap , serverSocketChannel, selector);
                 break;
             case SelectionKey.OP_READ:
                 SocketChannel readSocketChannel = (SocketChannel) key.channel();
                 read(readSocketChannel, selector);
+                break;
+            case SelectionKey.OP_CONNECT:
+                ServerSocketChannel connectSocketChannel = (ServerSocketChannel) key.channel();
                 break;
         }
     }
@@ -40,6 +47,10 @@ public class HandlerHandlerSelectionKeyImpl  implements HandlerSelectionKey
             return SelectionKey.OP_ACCEPT;
         } else if(key.isReadable()) {
             return SelectionKey.OP_READ;
+        } else if(key.isConnectable()) {
+            return SelectionKey.OP_CONNECT;
+        } else if(key.isWritable()) {
+            return SelectionKey.OP_WRITE;
         }
         return -1;
     }
@@ -50,10 +61,23 @@ public class HandlerHandlerSelectionKeyImpl  implements HandlerSelectionKey
      * @param selector
      * @throws IOException
      */
-    private void accept(List<SocketChannel> channels , ServerSocketChannel serverSocketChannel, Selector selector) throws IOException {
+    private void accept(Map<String , DeviceConn> deviceConnMap , ServerSocketChannel serverSocketChannel, Selector selector) throws IOException {
         SocketChannel socketChannel = serverSocketChannel.accept();
         socketChannel.configureBlocking(false);
-        channels.add(socketChannel);
+
+        DeviceConnPo po = new DeviceConnPo();
+        po.setDeviceId("aa");
+        po.setIp(((InetSocketAddress)socketChannel.getRemoteAddress()).getHostString());
+        po.setPort(((InetSocketAddress)socketChannel.getRemoteAddress()).getPort());
+        po.setCreateTime(new Date());
+
+        DeviceConn deviceConn = new DeviceConn();
+        deviceConn.setDeviceConnPo(po);
+        deviceConn.setSocketChannel(socketChannel);
+
+        System.out.println(deviceConn.toString());
+
+        deviceConnMap.put(po.getDeviceId() , deviceConn);
         //将 channel 注册到  Selector
         socketChannel.register(selector, SelectionKey.OP_READ);
     }
